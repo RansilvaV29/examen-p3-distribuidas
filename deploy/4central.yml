@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: central-service
+  namespace: examen-distribuidas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: central-service
+  template:
+    metadata:
+      labels:
+        app: central-service
+    spec:
+      containers:
+      - name: central-service
+        image: ransilvav29/central-service:1.0
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          value: "admin"
+        - name: DB_HOST
+          value: "agroflow-db"
+        - name: DB_NAME
+          value: "agroflow"
+        - name: DB_PORT
+          value: "5432"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "admin"
+        - name: RABBITMQ_PASSWORD
+          value: "admin"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: central-service
+  namespace: examen-distribuidas
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: central-service

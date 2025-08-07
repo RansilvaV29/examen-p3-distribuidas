@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agroflow-db
+  namespace: examen-distribuidas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agroflow-db
+  template:
+    metadata:
+      labels:
+        app: agroflow-db
+    spec:
+      containers:
+      - name: agroflow-db
+        image: ransilvav29/agroflow-db:1.0
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "agroflow"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "admin"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agroflow-db
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: agroflow-db

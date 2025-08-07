@@ -1,0 +1,75 @@
+version: '3.8'
+services:
+  agroflow-db:
+    image: ransilvav29/agroflow-db:1.0
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: agroflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+
+  central-service:
+    image: ransilvav29/central-service:1.0
+    ports:
+      - "3000:3000"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: admin
+      DB_HOST: agroflow-db
+      DB_NAME: agroflow
+      DB_PORT: 5432
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASSWORD: admin
+    depends_on:
+      - agroflow-db
+      - rabbitmq
+
+  inventory-service:
+    image: ransilvav29/inventory-service:1.0
+    ports:
+      - "3001:3001"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: admin
+      DB_HOST: agroflow-db
+      DB_NAME: agroflow
+      DB_PORT: 5432
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASSWORD: admin
+    depends_on:
+      - agroflow-db
+      - rabbitmq
+
+  billing-service:
+    image: ransilvav29/billing-service:1.0
+    ports:
+      - "3002:3002"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: admin
+      DB_HOST: agroflow-db
+      DB_NAME: agroflow
+      DB_PORT: 5432
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASSWORD: admin
+      CENTRAL_SERVICE_URL: http://central-service:3000
+    depends_on:
+      - agroflow-db
+      - rabbitmq
+      - central-service
